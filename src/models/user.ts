@@ -10,5 +10,4 @@ const UserSchema = new Schema({
     password: String
 }, { timestamps: true })
 
-
 export const User = model<UserInt>("User", UserSchema);
