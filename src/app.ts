@@ -5,6 +5,7 @@ import dotenv from 'dotenv';
 
 import connectDB from './utils/database';
 import allRoutes from './routes/all';
+import { serverErrorHandler } from './middleware/error';
 
 dotenv.config();
 
@@ -22,6 +23,9 @@ app.use(helmet());
 
 // routes
 app.use('/api/v1', allRoutes);
+
+// error handlers
+app.use(serverErrorHandler);
 
 connectDB()
   .then(() => {
