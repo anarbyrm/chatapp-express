@@ -3,6 +3,8 @@ import cors from 'cors';
 import helmet from 'helmet';
 import dotenv from 'dotenv';
 
+import connectDB from './utils/database';
+
 dotenv.config();
 
 const app = express();
@@ -16,6 +18,14 @@ app.use(cors({
 app.use(helmet());
 
 
-app.listen(PORT, (): void => {
-    console.log('Server is up and running...');
-})
+connectDB()
+  .then(() => {
+      console.log("Succesfully connected to database.");
+      app.listen(PORT, (): void => {
+        console.log('Server is up and running...');
+      })
+    }
+  )
+  .catch((err) => {
+    console.log(err.message);
+  })
