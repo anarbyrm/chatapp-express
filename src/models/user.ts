@@ -1,6 +1,8 @@
-import { Schema, Document, model } from "mongoose";
-
-import { UserInt } from '../utils/interfaces';
+import { Schema, model, Document } from "mongoose";
+export interface IUser extends Document {
+    email: string;
+    password: string;
+}
 
 const UserSchema = new Schema({
     email: {
@@ -10,4 +12,4 @@ const UserSchema = new Schema({
     password: String
 }, { timestamps: true })
 
-export const User = model<UserInt>("User", UserSchema);
+export const User = model<IUser>("User", UserSchema);

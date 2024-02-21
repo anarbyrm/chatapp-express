@@ -1,6 +1,7 @@
 export const UserSchema = {
     email: {
         trim: true,
+        normalizeEmail: true,
         isEmail: {
             errorMessage: 'Invalid email'
         }
