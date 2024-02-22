@@ -4,11 +4,15 @@ export interface IMessage extends Document {
     sender: string;
     receiver: string;
     body: string;
+    createdAt: string;
+    updatedAt: string;
 }
 
 export interface IChat extends Document {
     participants: string[];
     messages: string[];
+    createdAt: string;
+    updatedAt: string;
 }
 
 const MessageSchema = new Schema({

@@ -10,7 +10,15 @@ export interface CustomRequest extends Request {
 }
 
 export const verifyToken = async (req: CustomRequest, res: Response, next: NextFunction) => {
-    const tokenData: string = req.body.authorization;
+    const tokenData: string | unknown = req.headers.authorization;
+
+    if (typeof tokenData !== "string") {
+        return res.status(401).json({
+            status: 'fail',
+            data: "Not authenticated"
+        })
+    }
+
     const [prefix, token] = tokenData.split(" ");
 
     if (prefix !== 'Bearer') {
@@ -25,12 +33,10 @@ export const verifyToken = async (req: CustomRequest, res: Response, next: NextF
         if (err) {
             return next(err);
         }
-        
-        if (typeof decoded === 'string'){
-            const data: { email: string } = JSON.parse(decoded)
 
-            if (data.email) {
-                const user = await User.findOne({ email: data.email });
+        if (typeof decoded === 'object'){
+            if (decoded.email) {
+                const user = await User.findOne({ email: decoded.email });
                 if (user) {
                     req.user = user;
                     next();

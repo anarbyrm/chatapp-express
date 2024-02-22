@@ -47,11 +47,10 @@ export const sendMessage = async (req: CustomRequest, res: Response, next: NextF
                 participants: [sender._id, receiver._id]
             });
         }
-
         const newMessage = await Message.create({
             sender: sender._id,
             receiver: receiver._id,
-            body: data.message
+            body: data.body
         })
 
         if (!newMessage) {
@@ -59,16 +58,49 @@ export const sendMessage = async (req: CustomRequest, res: Response, next: NextF
         }
 
         chat.messages.push(newMessage._id);
+        await chat.save();
 
         return res.status(201).json({
             status: 'success',
             data: newMessage
         })
+
     } catch (err) {
         next(err);
     }
 };
 
-// export const getChat = async (req: CustomRequest, res: Response, next: NextFunction) => {
+export const getChat = async (req: CustomRequest, res: Response, next: NextFunction) => {
+    try {
+        const sender = req.user;
 
-// };
+        if (!sender) {
+            return res.status(401).json({
+                status: 'fail',
+                data: 'Not authorized'
+            })
+        }
+
+        const { userId } = req.params;
+
+        const receiver = await User.findOne({ _id: userId });
+
+        if (!receiver) {
+            return res.status(404).json({
+                status: 'fail',
+                data: 'user does not exist'
+            })
+        }
+
+        const chat = await Chat.findOne({
+            participants: { $all: [ receiver._id, sender._id] }
+        }).populate("messages");
+
+        return res.status(200).json({
+            status: 'success',
+            data: chat
+        })
+    } catch (err) {
+        next(err);
+    }
+};
