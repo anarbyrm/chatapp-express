@@ -4,6 +4,9 @@ import { matchedData, validationResult } from 'express-validator';
 import { CustomRequest } from '../middleware/auth';
 import { User } from '../models/user';
 import { Message, Chat } from '../models/chat';
+import { io, getUserSocketId } from '../utils/socket';
+
+// export namespace 
 
 export const sendMessage = async (req: CustomRequest, res: Response, next: NextFunction) => {
     const errors = validationResult(req);
@@ -59,6 +62,13 @@ export const sendMessage = async (req: CustomRequest, res: Response, next: NextF
 
         chat.messages.push(newMessage._id);
         await chat.save();
+        
+        // emit socket 'message sent' event before response
+        // check first if receiver is online
+        const receiverSocketId = getUserSocketId(receiver._id);
+        if (receiverSocketId) {
+            io.to(receiverSocketId).emit('message sent', newMessage);
+        }
 
         return res.status(201).json({
             status: 'success',
